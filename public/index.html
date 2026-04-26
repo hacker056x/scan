@@ -5,109 +5,239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Starblack SCAN</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: #0d0d0d;
+            background: #0a0a0a;
             color: #eee;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             padding: 20px;
-            max-width: 800px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
             margin: 0 auto;
         }
-        .box {
-            border: 1px solid #ff0000;
+        .header {
+            text-align: center;
             padding: 20px;
-            border-radius: 12px;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            background: #111;
             margin-bottom: 20px;
-            background: #1a1a1a;
+            box-shadow: 0 0 15px rgba(255,0,0,0.3);
         }
-        input, button, select {
+        .header h1 {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            font-size: 1.8rem;
+        }
+        .box {
+            background: #111;
+            border: 1px solid #ff0000;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(255,0,0,0.2);
+        }
+        .box h3 {
+            color: #ff0000;
+            margin-bottom: 15px;
+            border-left: 3px solid #ff0000;
+            padding-left: 10px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px 0;
+            font-weight: bold;
+            color: #ff6666;
+        }
+        input, select {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
             background: #222;
-            color: #eee;
-            border: 1px solid #990000;
+            border: 1px solid #ff0000;
+            color: #fff;
             border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        input[type="file"] {
+            background: #222;
+            cursor: pointer;
         }
         button {
             background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            margin: 10px 5px 0 0;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            font-family: monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        button:hover:not(:disabled) {
+            background: #cc0000;
+            transform: scale(1.02);
+            box-shadow: 0 0 10px #ff0000;
         }
         button:disabled {
             background: #555;
             cursor: not-allowed;
         }
-        .hit-block {
-            background: #2a2a2a;
-            border: 1px solid #ff0000;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            white-space: pre-wrap;
-            font-size: 12px;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
         }
-        #resultado {
+        .stat-card {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #ff0000;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .result-area {
             max-height: 500px;
             overflow-y: auto;
         }
-        .stats {
-            display: flex;
-            gap: 20px;
-            justify-content: space-between;
+        .hit {
+            background: #1a1a1a;
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            position: relative;
         }
-        .progress-line {
-            display: block;
-            margin: 5px 0;
+        .hit button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            font-size: 11px;
+            background: #ff0000;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #ff0000;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff0000;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        hr {
+            border-color: #ff0000;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>🔥 Team Starblack M3U SCAN 🔥</h1>
-        <hr>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 TEAM STARBLACK M3U SCAN 🔥</h1>
+            <p>IPTV Xtream Codes Scanner</p>
+        </div>
+
+        <div class="box">
+            <h3>⚙️ CONFIGURACIÓN</h3>
+            
+            <label>🏷️ NICKNAME</label>
+            <input type="text" id="nick" value="@hacker056">
+            
+            <label>🌐 HOST (ejemplo: servidor-iptv.com:8080)</label>
+            <input type="text" id="host" placeholder="ejemplo.com:8080">
+            
+            <label>📁 ARCHIVO COMBO (user:pass - una línea por cuenta)</label>
+            <input type="file" id="comboFile" accept=".txt">
+            
+            <label>🤖 BOTS (conexiones simultáneas)</label>
+            <input type="number" id="numBots" value="10" min="1" max="30">
+            
+            <hr>
+            
+            <div>
+                <button id="startBtn" onclick="iniciarScan()">🚀 INICIAR ESCANEO</button>
+                <button id="stopBtn" onclick="pararScan()" disabled>⏹️ DETENER</button>
+                <button onclick="guardarHits()">💾 GUARDAR TODOS LOS HITS</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>📊 ESTADÍSTICAS</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="testados">0</div>
+                    <div class="stat-label">TESTADOS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total">0</div>
+                    <div class="stat-label">TOTAL</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="hits">0</div>
+                    <div class="stat-label">✅ HITS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="invalidos">0</div>
+                    <div class="stat-label">❌ BAD</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>📺 RESULTADOS</h3>
+            <div id="resultado" class="result-area"></div>
+        </div>
         
-        <label>🏷️ NICKNAME</label>
-        <input type="text" id="nick" value="@hacker056">
-        
-        <label>🌐 HOST (ejemplo: 1.2.3.4:8080)</label>
-        <input type="text" id="host" placeholder="ejemplo.com:8080">
-        
-        <label>📁 ARCHIVO COMBO (user:pass)</label>
-        <input type="file" id="comboFile" accept=".txt">
-        
-        <label>🤖 BOTS (recomendado: 5-20)</label>
-        <input type="number" id="numBots" value="10" min="1" max="50">
-        
-        <button id="startBtn" onclick="iniciarScan()">▶ INICIAR ESCANEO</button>
-        <button id="stopBtn" onclick="pararScan()" disabled>⏹ DETENER</button>
-        <button onclick="guardarHits()">💾 GUARDAR HITS</button>
-    </div>
-    
-    <div class="box">
-        <h3>📊 ESTADÍSTICAS</h3>
-        <div class="stats">
-            <span>📝 TESTADOS: <span id="testados">0</span>/<span id="total">0</span></span>
-            <span>✅ HITS: <span id="hits">0</span></span>
-            <span>❌ BAD: <span id="invalidos">0</span></span>
+        <div class="footer">
+            <p>Team Starblack SCAN | BY @hacker056</p>
         </div>
     </div>
-    
-    <div class="box">
-        <h3>📺 RESULTADOS</h3>
-        <div id="resultado"></div>
-    </div>
-    
+
     <script>
         let todosHits = [];
         let scanActivo = false;
         let abortController = null;
         
         function actualizarStats(testados, total, hits, invalidos) {
-            document.getElementById('testados').textContent = testados;
-            document.getElementById('total').textContent = total;
-            document.getElementById('hits').textContent = hits;
-            document.getElementById('invalidos').textContent = invalidos;
+            document.getElementById('testados').innerText = testados;
+            document.getElementById('total').innerText = total;
+            document.getElementById('hits').innerText = hits;
+            document.getElementById('invalidos').innerText = invalidos;
         }
         
         function deshabilitarBotones(escaneando) {
@@ -116,90 +246,97 @@
         }
         
         function limpiarHost(host) {
-            return host.replace(/^https?:\/\//, '').trim();
+            return host.replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
         }
         
-        function mostrarHit(hit) {
-            const resultado = document.getElementById('resultado');
-            const block = document.createElement('div');
-            block.className = 'hit-block';
+        function mostrarHit(hitText) {
+            const resultadoDiv = document.getElementById('resultado');
+            const hitDiv = document.createElement('div');
+            hitDiv.className = 'hit';
             
             const copyBtn = document.createElement('button');
-            copyBtn.textContent = '📋 COPIAR';
-            copyBtn.style.width = 'auto';
-            copyBtn.style.padding = '5px 10px';
+            copyBtn.innerHTML = '📋 COPIAR';
             copyBtn.onclick = () => {
-                navigator.clipboard.writeText(hit);
-                alert('✅ Hit copiado!');
+                navigator.clipboard.writeText(hitText);
+                copyBtn.innerHTML = '✅ COPIADO!';
+                setTimeout(() => { copyBtn.innerHTML = '📋 COPIAR'; }, 2000);
             };
             
             const pre = document.createElement('pre');
-            pre.textContent = hit;
+            pre.textContent = hitText;
             pre.style.whiteSpace = 'pre-wrap';
-            pre.style.margin = '10px 0 0 0';
+            pre.style.marginTop = '40px';
+            pre.style.fontSize = '11px';
             
-            block.appendChild(copyBtn);
-            block.appendChild(pre);
-            resultado.appendChild(block);
-            resultado.scrollTop = resultado.scrollHeight;
+            hitDiv.appendChild(copyBtn);
+            hitDiv.appendChild(pre);
+            resultadoDiv.appendChild(hitDiv);
+            resultadoDiv.scrollTop = resultadoDiv.scrollHeight;
         }
         
         async function iniciarScan() {
             const host = document.getElementById('host').value.trim();
-            const file = document.getElementById('comboFile').files[0];
+            const fileInput = document.getElementById('comboFile');
+            const file = fileInput.files[0];
             
             if (!host) {
-                alert('❌ Ingresa un HOST');
+                alert('❌ Por favor, ingresa un HOST');
                 return;
             }
+            
             if (!file) {
-                alert('❌ Selecciona un archivo de combos');
+                alert('❌ Por favor, selecciona un archivo de combos');
+                return;
+            }
+            
+            // Verificar que el archivo no esté vacío
+            const fileContent = await file.text();
+            const lines = fileContent.split(/\r?\n/).filter(l => l.trim() && l.includes(':'));
+            
+            if (lines.length === 0) {
+                alert('❌ El archivo no contiene combos válidos. Formato: usuario:contraseña');
                 return;
             }
             
             scanActivo = true;
             deshabilitarBotones(true);
-            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('resultado').innerHTML = '<div class="loading"><div class="spinner"></div> Escaneando...</div>';
             todosHits = [];
-            actualizarStats(0, 0, 0, 0);
+            actualizarStats(0, lines.length, 0, 0);
             
             const formData = new FormData();
             formData.append('host', limpiarHost(host));
             formData.append('nick', document.getElementById('nick').value || '@hacker056');
             formData.append('numBots', document.getElementById('numBots').value);
-            formData.append('printCategories', 'false');
-            formData.append('channelSeparator', '«[📺]»');
-            formData.append('movieSeparator', '«[🎬]»');
-            formData.append('seriesSeparator', '«[📺]»');
-            formData.append('canalLink', '');
-            formData.append('emojiCanal', '📬');
-            formData.append('emojis', JSON.stringify({
-                emojiHeader: '★', hitsPor: '🎯', servidor: '🌐', usuario: '🤴',
-                senha: '🔐', criada: '🗓️', expira: '📆', status: '🔋',
-                emojiTrial: '⏲️', conectados: '👪', conexoes: '🧮',
-                emojiTimezone: '🕰️', linkM3U: '🔗', emojiEpgLink: '📑',
-                emojiMessage: '✍️', emojiChannels: '📺', emojiMovies: '🎬',
-                emojiSeries: '🎞️', emojiRealServer: '📡', emojiRealM3U: '⛓️',
-                emojiLocation: '🌍', emojiProtocol: '📖', emojiDuration: '⏳'
-            }));
             formData.append('comboFile', file);
             
+            // Emojis básicos
+            const emojis = {
+                emojiHeader: '★', hitsPor: '🎯', servidor: '🌐',
+                usuario: '🤴', senha: '🔐', criada: '🗓️',
+                expira: '📆', status: '🔋', linkM3U: '🔗',
+                emojiRealServer: '📡', conectados: '👪', conexoes: '🧮'
+            };
+            formData.append('emojis', JSON.stringify(emojis));
+            
             const startBtn = document.getElementById('startBtn');
-            const originalText = startBtn.textContent;
-            startBtn.textContent = '🔄 ESCANEANDO...';
+            const originalText = startBtn.innerHTML;
+            startBtn.innerHTML = '<div class="spinner" style="display:inline-block; margin-right:5px;"></div> ESCANEANDO...';
             
             try {
                 abortController = new AbortController();
+                
                 const response = await fetch('/api/scan', {
                     method: 'POST',
                     body: formData,
-                    signal: abortController.signal,
-                    timeout: 300000 // 5 minutos timeout
+                    signal: abortController.signal
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
+                    document.getElementById('resultado').innerHTML = '';
+                    
                     for (const hit of data.hits) {
                         if (!scanActivo) break;
                         mostrarHit(hit);
@@ -213,21 +350,27 @@
                         data.stats.invalidos
                     );
                     
-                    alert(`✅ ESCANEO COMPLETADO!\n✅ HITS: ${data.stats.hits}\n❌ BAD: ${data.stats.invalidos}`);
+                    if (data.stats.hits > 0) {
+                        alert(`✅ ESCANEO COMPLETADO!\n\n✅ HITS ENCONTRADOS: ${data.stats.hits}\n❌ COMBOS INVÁLIDOS: ${data.stats.invalidos}\n📊 TOTAL TESTADOS: ${data.stats.testados}`);
+                    } else {
+                        alert(`⚠️ ESCANEO COMPLETADO SIN HITS\n\n❌ BAD: ${data.stats.invalidos}\n📊 TOTAL: ${data.stats.testados}`);
+                    }
                 } else {
                     alert(`❌ Error: ${data.error}`);
+                    document.getElementById('resultado').innerHTML = `<div class="loading" style="color:#ff0000">❌ Error: ${data.error}</div>`;
                 }
             } catch (error) {
                 if (error.name === 'AbortError') {
-                    alert('⏹️ Escaneo detenido');
+                    document.getElementById('resultado').innerHTML = '<div class="loading">⏹️ Escaneo detenido por el usuario</div>';
                 } else {
                     console.error('Error:', error);
-                    alert(`❌ Error: ${error.message}`);
+                    alert(`❌ Error de conexión: ${error.message}`);
+                    document.getElementById('resultado').innerHTML = `<div class="loading" style="color:#ff0000">❌ Error: ${error.message}</div>`;
                 }
             } finally {
                 scanActivo = false;
                 deshabilitarBotones(false);
-                startBtn.textContent = originalText;
+                startBtn.innerHTML = originalText;
                 abortController = null;
             }
         }
@@ -237,6 +380,7 @@
                 scanActivo = false;
                 abortController.abort();
                 deshabilitarBotones(false);
+                document.getElementById('resultado').innerHTML = '<div class="loading">⏹️ Escaneo detenido</div>';
             }
         }
         
@@ -247,14 +391,21 @@
             }
             
             const host = document.getElementById('host').value.trim() || 'scan';
-            const filename = `Team_Starblack_${host}_${new Date().toISOString().slice(0,19)}.txt`;
-            const blob = new Blob([todosHits.join('\n\n\n')], { type: 'text/plain' });
+            const fecha = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `Team_Starblack_HITS_${host}_${fecha}.txt`;
+            
+            const contenido = todosHits.join('\n\n' + '='.repeat(60) + '\n\n');
+            const blob = new Blob([contenido], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = filename;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            
+            alert(`💾 Se guardaron ${todosHits.length} hits`);
         }
     </script>
 </body>

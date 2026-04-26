@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Starblack SCAN - Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <style>
+    :root {
+      --neon-red: #ff0000;
+      --dark-bg: #0d0d0d;
+      --light-text: #eee;
+      --border-red: #990000;
+    }
+    body {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      font-family: monospace;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .image-container {
+      margin-bottom: 15px;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--neon-red);
+      background-color: #1a1a1a;
+      box-shadow: 0 0 7px var(--neon-red), 0 0 15px var(--neon-red), 0 0 25px var(--neon-red), inset 0 0 10px rgba(255,0,0,0.5);
+      text-align: center;
+    }
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    .glam-heading {
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--light-text);
+      text-shadow: 0 0 5px var(--neon-red), 0 0 10px var(--neon-red), 0 0 15px var(--neon-red);
+      letter-spacing: 2px;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .top-heading {
+      margin-bottom: 15px;
+    }
+    .bottom-heading {
+      margin-top: 15px;
+      font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid var(--border-red);
+      font-size: 16px;
+      font-family: monospace;
+      box-sizing: border-box;
+      background-color: #222;
+      color: var(--light-text);
+    }
+    button {
+      background-color: var(--neon-red);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      border: none;
+      text-shadow: 0 0 2px #fff;
+      box-shadow: 0 0 5px var(--neon-red), 0 0 10px var(--neon-red);
+    }
+    button:hover:not(:disabled) {
+      background-color: #ff4d4d;
+      box-shadow: 0 0 8px var(--neon-red), 0 0 16px var(--neon-red), 0 0 24px var(--neon-red);
+    }
+    button.utility-btn {
+        background-color: #333;
+        box-shadow: none;
+        margin-bottom: 10px;
+    }
+    button.utility-btn:hover {
+        background-color: #555;
+        box-shadow: none;
+    }
+    button:disabled {
+      background-color: #555 !important;
+      cursor: default;
+      color: #aaa;
+      box-shadow: none;
+    }
+    .box {
+      border: 1px solid var(--neon-red);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      background-color: #1a1a1a;
+      box-shadow: 0 0 7px var(--neon-red), 0 0 15px var(--neon-red), 0 0 25px var(--neon-red), inset 0 0 10px rgba(255,0,0,0.5);
+    }
+    .progress-line {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .join-box {
+        padding: 5px;
+        text-align: center;
+    }
+    .join-box a {
+        color: var(--light-text);
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.2em;
+        text-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+    }
+    #resultado {
+      background-color: #000;
+      color: #ffc4c4;
+      padding: 10px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 13px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      border: 1px solid #444;
+    }
+    .hit-block {
+      background-color: #2a2a2a;
+      border: 1px solid var(--neon-red);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #ffc4c4;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .hit-buttons {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+    .hit-buttons button {
+      background-color: var(--neon-red);
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+      min-width: 60px;
+      text-align: center;
+      box-shadow: none;
+    }
+    .hit-buttons button:hover {
+      background-color: #ff4d4d;
+    }
+    .emoji-select {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      background-color: #222;
+      color: var(--light-text);
+      border: 1px solid var(--border-red);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .flex-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .flex-col {
+      flex: 1;
+      min-width: 120px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,0,0,0.3);
+      border-radius: 50%;
+      border-top-color: var(--neon-red);
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    footer {
+        display: none;
+    }
+    @media (max-width: 600px) {
+      h2 { font-size: 18px; }
+      input, select, button, textarea { font-size: 14px; }
+      .hit-buttons {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .hit-buttons button {
+        min-width: 50px;
+        padding: 3px 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="image-container">
+  <a href="https://t.me/abelito_12" target="_blank">
+    <img src="https://i.postimg.cc/KYnqNMyP/team-starblack.jpg" alt="Telegram Channel Link">
+  </a>
+  <h2 class="glam-heading bottom-heading">Team Starblack<br>M3U SCAN (ONLINE)</h2>
+  
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+
+  <div style="text-align: left;">
+    <label for="nick">NICKNAME</label>
+    <input type="text" id="nick" value="@hacker056">
+
+    <label for="host">HOST (example.com:80)</label>
+    <input type="text" id="host">
+
+    <label for="comboFile">USER:PASS COMBO</label>
+    <input type="file" id="comboFile" accept=".txt">
+
+    <label for="numBots">BOTS (1-100 Recomendado 20)</label>
+    <input type="number" id="numBots" value="20" min="1" max="100">
+  </div>
+</div>
+
+<div class="box">
+  <h3>CONFIGURA TU PROPIA IMPRESIÓN DE SALIDA</h3>
+  <button class="utility-btn" onclick="randomizeEmojis()">🎲 ALEATORIO EMOJIS</button>
+
+  <div class="flex-row">
+    <div class="flex-col"><label>★ ENCABEZADO</label><select id="emojiHeader" class="emoji-select"><option>★</option><option>✪</option><option>♕</option><option>♖</option></select></div>
+    <div class="flex-col"><label>🎯 HIT</label><select id="emojiHitsPor" class="emoji-select"><option>🎯</option><option>🔥</option><option>💥</option><option>🥊</option><option>💣</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🌐 HOST</label><select id="emojiServidor" class="emoji-select"><option>🌐</option><option>🗺️</option><option>🌎</option><option>🛰️</option><option>📍</option></select></div>
+    <div class="flex-col"><label>📡 REAL SERVER</label><select id="emojiRealServer" class="emoji-select"><option>📡</option><option>🔭</option><option>🌑</option><option>🛰️</option><option>🪐</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>📖 PROTOCOL</label><select id="emojiProtocol" class="emoji-select"><option>📖</option><option>📜</option><option>📑</option><option>📝</option><option>📃</option></select></div>
+    <div class="flex-col"><label>🌍 UBICACIÓN</label><select id="emojiLocation" class="emoji-select"><option>🌍</option><option>📍</option><option>🗺️</option><option>🧭</option><option>🏠</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🤴 USUARIO</label><select id="emojiUsuario" class="emoji-select"><option>🤴</option><option>👻</option><option>🙍‍♂️</option><option>🙍‍♀️</option></select></div>
+    <div class="flex-col"><label>🔐 CONTRASEÑA</label><select id="emojiSenha" class="emoji-select"><option>🔐</option><option>🔑</option><option>🗝️</option><option>🛡️</option><option>🔏</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🗓️ CREADA</label><select id="emojiCriada" class="emoji-select"><option>🗓️</option><option>📆</option><option>💵</option><option>💴</option><option>🕰️</option></select></div>
+    <div class="flex-col"><label>📆 FIN</label><select id="emojiExpira" class="emoji-select"><option>📆</option><option>⏰</option><option>🪦</option><option>☠️</option><option>💀</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>⏳ DURACIÓN</label><select id="emojiDuration" class="emoji-select"><option>⏳</option><option>🪫</option><option>⏱️</option><option>⌛</option><option>⚠️</option></select></div>
+    <div class="flex-col"><label>🔋 ESTADO</label><select id="emojiStatus" class="emoji-select"><option>🔋</option><option>✔️</option><option>⁉️</option><option>💲</option><option>🆗️</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🧮 MÁXIMAS CONEXIONES</label><select id="emojiConexoes" class="emoji-select"><option>🧮</option><option>🔢</option><option>👨‍👩‍👧‍👦</option><option>🧑‍🧑‍🧒‍🧒</option><option>💯</option></select></div>
+    <div class="flex-col"><label>👪 CONEXIONES ACTIVAS</label><select id="emojiConectados" class="emoji-select"><option>👪</option><option>👥</option><option>🤼‍♀️</option><option>🏋‍♀️</option><option>🏃</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>⏲️ TRIAL</label><select id="emojiTrial" class="emoji-select"><option>⏲️</option><option>🕠</option><option>🪂</option><option>🛸</option><option>🃏</option></select></div>
+    <div class="flex-col"><label>🕰️ ZONA HORARIA</label><select id="emojiTimezone" class="emoji-select"><option>🕰️</option><option>🏳️‍🌈</option><option>⏱️</option><option>🛸</option><option>🪧</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>✍️ MENSAJE</label><select id="emojiMessage" class="emoji-select"><option>✍️</option><option>💬</option><option>📝</option><option>📢</option><option>✉️</option></select></div>
+    <div class="flex-col"><label>🔗 M3U LINK</label><select id="emojiLinkM3U" class="emoji-select"><option>🔗</option><option>📎</option><option>⛓️</option><option>🧬</option><option>♻️</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>⛓️ REAL M3U LINK</label><select id="emojiRealM3U" class="emoji-select"><option>⛓️</option><option>🖇</option><option>📡</option><option>🧬</option><option>⛓️‍💥</option></select></div>
+    <div class="flex-col"><label>📑 EPG LINK</label><select id="emojiEpgLink" class="emoji-select"><option>📑</option><option>📜</option><option>📃</option><option>📋</option><option>🗃</option></select></div>
+  </div>
+  
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+  
+  <div class="flex-row">
+    <div class="flex-col" style="min-width: 95%;">
+      <label>CATEGORÍAS</label>
+      <select id="printCategories" class="emoji-select">
+        <option value="true">VER CATEGORÍAS</option>
+        <option value="false">NO VER CATEGORÍAS</option>
+      </select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>📺 CANALES</label><select id="emojiChannels" class="emoji-select"><option>📺</option><option>📡</option><option>💻</option><option>📲</option><option>🔍</option></select></div>
+    <div class="flex-col"><label>🎬 PELICULAS</label><select id="emojiMovies" class="emoji-select"><option>🎬</option><option>🍿</option><option>📽</option><option>📼</option><option>🥤</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🎞️ SERIES</label><select id="emojiSeries" class="emoji-select"><option>🎞️</option><option>📹</option><option>🖥</option><option>🎥</option><option>🔎</option></select></div>
+    <div class="flex-col"><label>📺 DIVISIÓN DE CANALES</label><select id="channelSeparator" class="emoji-select"><option>«[⚽️]»</option><option>«[🏀]»</option><option>«[🏈]»</option><option>«[⚾️]»</option><option>«[🥎]»</option></select></div>
+  </div>
+  <div class="flex-row">
+    <div class="flex-col"><label>🍿 MOVIE SPLIT</label><select id="movieSeparator" class="emoji-select"><option>«[🍿]»</option><option>«[📽]»</option><option>«[🥤]»</option><option>«[🎬]»</option><option>«[🖥]»</option></select></div>
+    <div class="flex-col"><label>📹 SERIES SPLIT</label><select id="seriesSeparator" class="emoji-select"><option>«[📹]»</option><option>«[📼]»</option><option>«[📺]»</option><option>«[🎞]»</option><option>«[💻]»</option></select></div>
+  </div>
+
+  <hr style="border-color: var(--border-red); margin: 20px 0;">
+
+  <div>
+    <label>⛓️ TELEGRAM LINK</label>
+    <input type="text" id="canalGrupoLink" value="">
+    <label>📬 TELEGRAM EMOJI</label>
+    <select id="emojiCanalGrupo" class="emoji-select">
+      <option>📬</option><option>📨</option><option>📮</option><option>📧</option><option>🗳️</option>
+    </select>
+  </div>
+</div>
+
+<div class="box">
+  <b>📊 SCAN PROGRESS</b><br>
+  <span class="progress-line"><br>🔆 TESTED ➠ <span id="testados">0</span> / <span id="total">0</span></span>
+  <span class="progress-line">✅ HITS ➠ <span id="hits">0</span></span>
+  <span class="progress-line">⛔ BAD ➠ <span id="invalidos">0</span></span>
+  <b><br>BY @hacker056</b><br>
+</div>
+
+<div class="box">
+  <button id="startBtn" onclick="iniciarScan()">INICIAR SCANEO</button>
+  <button id="stopBtn" onclick="pararScan()" disabled>DETENER</button>
+  <button onclick="enviarTodosHits()">GUARDAR</button>
+</div>
+
+<div class="box join-box">
+  <a href="https://wa.me/18092165652?text=estoy%20interesado%20en%20tu%20checker%20de%20iptv" target="_blank">💙💛 WHATSAAP💛💙</a>
+</div>
+
+<div class="box join-box">
+  <a href="https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04" target="_blank">CANAL WHATSAAP</a>
+</div>
+
+<footer></footer>
+
+<script>
+let todosHits = [];
+let scanActivo = false;
+let abortController = null;
+
+function randomizeEmojis() {
+    const selectors = document.querySelectorAll('.emoji-select');
+    selectors.forEach(select => {
+        if(select.id === 'printCategories') return;
+        const randomIndex = Math.floor(Math.random() * select.options.length);
+        select.selectedIndex = randomIndex;
+    });
+}
+
+function atualizarStatus(testados, total, hits, invalidos) {
+    document.getElementById("testados").textContent = testados;
+    document.getElementById("total").textContent = total;
+    document.getElementById("hits").textContent = hits;
+    document.getElementById("invalidos").textContent = invalidos;
+}
+
+function desabilitarBotoes(scanAtivo) {
+    document.getElementById("startBtn").disabled = scanAtivo;
+    document.getElementById("stopBtn").disabled = !scanAtivo;
+}
+
+function limparHost(host) {
+    return host.replace(/^https?:\/\//i, "").trim();
+}
+
+function mostrarHitNaTela(hit) {
+    let divResultado = document.getElementById('resultado');
+    if (!divResultado) {
+        divResultado = document.createElement('div');
+        divResultado.id = 'resultado';
+        const joinBox = document.querySelector('.join-box');
+        joinBox.parentNode.insertBefore(divResultado, joinBox.nextSibling);
+    }
+    const bloco = document.createElement('div');
+    bloco.className = 'hit-block';
+    const botoes = document.createElement('div');
+    botoes.className = 'hit-buttons';
+    const btnCopiar = document.createElement('button');
+    btnCopiar.textContent = 'COPY HIT';
+    
+    btnCopiar.onclick = () => {
+        navigator.clipboard.writeText(hit).then(() => {
+            alert('✅ HIT copiado al portapapeles!');
+        }).catch(() => {
+            alert('❌ Error al copiar');
+        });
+    };
+
+    botoes.appendChild(btnCopiar);
+    bloco.appendChild(botoes);
+    const texto = document.createElement('pre');
+    texto.textContent = hit;
+    bloco.appendChild(texto);
+    divResultado.appendChild(bloco);
+    divResultado.scrollTop = divResultado.scrollHeight;
+}
+
+async function iniciarScan() {
+    if (!document.getElementById('host').value) {
+        alert('❌ Ingresa el host para escanear!');
+        return;
+    }
+    if (!document.getElementById('comboFile').files[0]) {
+        alert('❌ Selecciona un archivo .txt con combos!');
+        return;
+    }
+    
+    scanActivo = true;
+    desabilitarBotoes(true);
+    
+    const existingResultDiv = document.getElementById('resultado');
+    if (existingResultDiv) existingResultDiv.innerHTML = '';
+    todosHits = [];
+    
+    const nick = document.getElementById('nick').value.trim() || 'FAWX';
+    const host = limparHost(document.getElementById('host').value.trim());
+    const file = document.getElementById('comboFile').files[0];
+    const numBots = document.getElementById('numBots').value;
+    
+    // Recoger emojis
+    const emojis = {
+        emojiHeader: document.getElementById('emojiHeader').value,
+        hitsPor: document.getElementById('emojiHitsPor').value,
+        servidor: document.getElementById('emojiServidor').value,
+        usuario: document.getElementById('emojiUsuario').value,
+        senha: document.getElementById('emojiSenha').value,
+        criada: document.getElementById('emojiCriada').value,
+        expira: document.getElementById('emojiExpira').value,
+        status: document.getElementById('emojiStatus').value,
+        emojiTrial: document.getElementById('emojiTrial').value,
+        conectados: document.getElementById('emojiConectados').value,
+        conexoes: document.getElementById('emojiConexoes').value,
+        emojiTimezone: document.getElementById('emojiTimezone').value,
+        linkM3U: document.getElementById('emojiLinkM3U').value,
+        emojiEpgLink: document.getElementById('emojiEpgLink').value,
+        emojiMessage: document.getElementById('emojiMessage').value,
+        emojiChannels: document.getElementById('emojiChannels').value,
+        emojiMovies: document.getElementById('emojiMovies').value,
+        emojiSeries: document.getElementById('emojiSeries').value,
+        emojiRealServer: document.getElementById('emojiRealServer').value,
+        emojiRealM3U: document.getElementById('emojiRealM3U').value,
+        emojiLocation: document.getElementById('emojiLocation').value,
+        emojiProtocol: document.getElementById('emojiProtocol').value,
+        emojiDuration: document.getElementById('emojiDuration').value
+    };
+    
+    const formData = new FormData();
+    formData.append('host', host);
+    formData.append('nick', nick);
+    formData.append('numBots', numBots);
+    formData.append('printCategories', document.getElementById('printCategories').value);
+    formData.append('channelSeparator', document.getElementById('channelSeparator').value);
+    formData.append('movieSeparator', document.getElementById('movieSeparator').value);
+    formData.append('seriesSeparator', document.getElementById('seriesSeparator').value);
+    formData.append('canalLink', document.getElementById('canalGrupoLink').value);
+    formData.append('emojiCanal', document.getElementById('emojiCanalGrupo').value);
+    formData.append('emojiCanalGrupo', document.getElementById('emojiCanalGrupo').value);
+    formData.append('emojis', JSON.stringify(emojis));
+    formData.append('comboFile', file);
+    
+    // Mostrar spinner o mensaje de carga
+    const startBtn = document.getElementById('startBtn');
+    const originalText = startBtn.textContent;
+    startBtn.textContent = 'ESCANEANDO...';
+    startBtn.disabled = true;
+    
+    try {
+        abortController = new AbortController();
+        
+        const response = await fetch('/api/scan', {
+            method: 'POST',
+            body: formData,
+            signal: abortController.signal
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Mostrar todos los hits
+            for (const hit of data.hits) {
+                if (!scanActivo) break;
+                mostrarHitNaTela(hit);
+                todosHits.push(hit);
+            }
+            
+            // Actualizar estadísticas
+            atualizarStatus(
+                data.stats.testados,
+                data.stats.total,
+                data.stats.hits,
+                data.stats.invalidos
+            );
+            
+            alert(`✅ ESCANEO COMPLETADO!\n📊 HITS: ${data.stats.hits}\n❌ BAD: ${data.stats.invalidos}`);
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            alert('⏹️ Escaneo detenido por el usuario');
+        } else {
+            console.error('Error:', error);
+            alert(`❌ Error en el escaneo: ${error.message}`);
+        }
+    } finally {
+        scanActivo = false;
+        desabilitarBotoes(false);
+        startBtn.textContent = originalText;
+        startBtn.disabled = false;
+        abortController = null;
+    }
+}
+
+function pararScan() {
+    if (abortController) {
+        scanActivo = false;
+        abortController.abort();
+        desabilitarBotoes(false);
+    }
+}
+
+function enviarTodosHits() {
+    if (todosHits.length === 0) {
+        alert("❌ No hay hits para guardar!");
+        return;
+    }
+    
+    const host = limparHost(document.getElementById('host').value.trim()) || 'scan';
+    const headerEmoji = document.getElementById('emojiHeader').value;
+    const filename = `[👻][${host}][Team${headerEmoji}Stablack${headerEmoji}Scan${headerEmoji}𝙼𝟹𝚄🤴].txt`;
+    
+    const blob = new Blob([todosHits.join("\n\n\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

